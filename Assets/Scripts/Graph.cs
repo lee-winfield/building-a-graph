@@ -8,8 +8,8 @@ public class Graph : MonoBehaviour {
     [SerializeField, Range(10, 100)]
     int resolution = 10;
 
-    [SerializeField, Range(0,2)]
-    int function = 0;
+    [SerializeField]
+    FunctionLibrary.FunctionName function = default;
 
     Transform[] points;
 
