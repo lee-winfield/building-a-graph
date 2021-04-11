@@ -2,42 +2,38 @@ using UnityEngine;
 
 public class Graph : MonoBehaviour {
 
-    [SerializeField]
-    Transform pointPrefab = default;
+    [SerializeField] private Transform pointPrefab = default;
 
-    [SerializeField, Range(10, 100)]
-    int resolution = 10;
+    [SerializeField, Range(10, 100)] private int resolution = 10;
 
-    [SerializeField]
-    FunctionLibrary.FunctionName function = default;
+    [SerializeField] private FunctionLibrary.FunctionName function = default;
 
-    Transform[] points;
+    private Transform[] _points;
 
-    void Awake () {
-        float step = 2f / resolution;
+    private void Awake () {
+        var step = 2f / resolution;
         var scale = Vector3.one * step;
-        points = new Transform[resolution * resolution];
-        for (int i = 0, x = 0, z = 0; i < points.Length; i++, x++) {
-            Transform point = Instantiate(pointPrefab);
+        _points = new Transform[resolution * resolution];
+        for (var i = 0; i < _points.Length; i++) {
+            var point = Instantiate(pointPrefab, transform, false);
             point.localScale = scale;
-            point.SetParent(transform, false);
-            points[i] = point;
+            _points[i] = point;
         }
     }
 
     void Update () {
-        FunctionLibrary.Function f = FunctionLibrary.GetFunction(function);
-        float time = Time.time;
-        float step = 2f / resolution;
-        for (int i = 0, x = 0, z = 0; i < points.Length; i++, x++) {
+        var f = FunctionLibrary.GetFunction(function);
+        var time = Time.time;
+        var step = 2f / resolution;
+        for (int i = 0, x = 0, z = 0; i < _points.Length; i++, x++) {
             if (x == resolution) {
                 x = 0;
                 z++;
             }
-            Transform point = points[i];
-            Vector3 position = point.localPosition;
-            float u = (x + 0.5f) * step - 1f;
-            float v = (z + 0.5f) * step - 1f;
+            var point = _points[i];
+            var position = point.localPosition;
+            var u = (x + 0.5f) * step - 1f;
+            var v = (z + 0.5f) * step - 1f;
             point.localPosition = f(u, v, time);
         }
     }
