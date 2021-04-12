@@ -23,6 +23,11 @@ public static class FunctionLibrary {
         return choice == name ? 0 : choice;
     }
 
+    public static Vector3 Morph(float u, float v, float t, Function from, Function to, float progress)
+    {
+        return Vector3.Lerp(from(u, v, t), to(u, v, t), progress);
+    }
+
     private static Vector3 Wave (float u, float v, float t) {
         Vector3 p;
         p.x = u;

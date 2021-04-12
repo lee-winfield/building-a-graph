@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class Graph : MonoBehaviour {
 
-    [SerializeField] private Transform pointPrefab = default;
+    [SerializeField] private Transform pointPrefab;
 
     [SerializeField, Range(10, 100)] private int resolution = 10;
 
-    [SerializeField] private FunctionLibrary.FunctionName function = default;
+    [SerializeField] private FunctionLibrary.FunctionName function;
 
-    [SerializeField, Min(0f)] private float functionDuration = 1f;
+    [SerializeField, Min(0f)] private float functionDuration = 1f, transitionDuration = 1f;
 
     private enum TransitionMode { Cycle, Random }
 
@@ -16,6 +16,9 @@ public class Graph : MonoBehaviour {
 
     private Transform[] _points;
     private float _duration;
+
+    private bool _transitioning;
+    private FunctionLibrary.FunctionName _transitionFunction;
 
     private void Awake () {
         var step = 2f / resolution;
@@ -31,12 +34,31 @@ public class Graph : MonoBehaviour {
     private void Update ()
     {
         _duration += Time.deltaTime;
-        if (_duration >= functionDuration)
+        
+        if (_transitioning)
+        {
+            if (_duration >= transitionDuration)
+            {
+                _duration -= transitionDuration;
+                _transitioning = false;                
+            }
+        }
+        else if (_duration >= functionDuration)
         {
             _duration -= functionDuration;
+            _transitioning = true;
+            _transitionFunction = function;
             PickNextFunction();
         }
-        UpdateFunction();
+        
+        if (_transitioning)
+        {
+            UpdateFunctionTransition();
+        }
+        else
+        {
+            UpdateFunction();
+        }
     }
 
     private void PickNextFunction()
@@ -60,10 +82,32 @@ public class Graph : MonoBehaviour {
             }
 
             var point = _points[i];
-            var position = point.localPosition;
             var u = (x + 0.5f) * step - 1f;
             var v = (z + 0.5f) * step - 1f;
             point.localPosition = f(u, v, time);
+        }
+    }
+    
+    private void UpdateFunctionTransition()
+    {
+        var from = FunctionLibrary.GetFunction(_transitionFunction);
+        var to = FunctionLibrary.GetFunction(function);
+        var progress = _duration / transitionDuration;
+        var time = Time.time;
+        var step = 2f / resolution;
+
+        for (int i = 0, x = 0, z = 0; i < _points.Length; i++, x++)
+        {
+            if (x == resolution)
+            {
+                x = 0;
+                z++;
+            }
+
+            var point = _points[i];
+            var u = (x + 0.5f) * step - 1f;
+            var v = (z + 0.5f) * step - 1f;
+            point.localPosition = FunctionLibrary.Morph(u, v, time, from, to, progress);
         }
     }
 }
