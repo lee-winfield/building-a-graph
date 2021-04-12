@@ -1,10 +1,9 @@
-using System;
 using TMPro;
 using UnityEngine;
 
 public class FrameRateCounter : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI display = default;
+    [SerializeField] private TextMeshProUGUI display;
     [SerializeField, Range(0.1f, 2f)] private float sampleDuration = 1f;
 
     private enum DisplayMode
@@ -13,7 +12,7 @@ public class FrameRateCounter : MonoBehaviour
         MS
     }
 
-    [SerializeField] private DisplayMode _displayMode = DisplayMode.FPS;
+    [SerializeField] private DisplayMode displayMode = DisplayMode.FPS;
     
 
     private int _frames;
@@ -34,7 +33,7 @@ public class FrameRateCounter : MonoBehaviour
         }
 
         if (_duration < sampleDuration) return;
-        if (_displayMode == DisplayMode.FPS)
+        if (displayMode == DisplayMode.FPS)
         {
             display.SetText(
                 "FPS\n{0:0}\n{1:0}\n{2:0}",
